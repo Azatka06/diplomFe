@@ -1,0 +1,92 @@
+package ru.sagutdinov.tribune.postModel
+
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import ru.sagutdinov.tribune.BuildConfig
+import ru.sagutdinov.tribune.api.API
+import ru.sagutdinov.tribune.api.AuthRequestParams
+import ru.sagutdinov.tribune.api.InjectAuthTokenInterceptor
+import ru.sagutdinov.tribune.api.RegistrationRequestParams
+
+
+const val BASE_URL = "https://sagutdinov-tribune.herokuapp.com/"
+
+
+object Repository {
+
+    private var retrofit: Retrofit =
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    private var api: API = retrofit.create(API::class.java)
+
+
+    suspend fun authenticate(username: String, password: String) =
+        api.authenticate(AuthRequestParams(username, password))
+
+    suspend fun register(username: String, password: String) =
+        api.register(RegistrationRequestParams(username, password))
+
+    suspend fun getPostsBefore(idPost: Long) = api.getPostsBefore(idPost)
+
+    suspend fun getRecent() = api.getRecent()
+
+    suspend fun pressPostUp(idPost: Long) = api.pressPostUp(idPost)
+
+    suspend fun pressPostDown(idPost: Long) = api.pressPostDown(idPost)
+
+    suspend fun getReactionByUsers(idPost: Long) = api.getReactionByUsers(idPost)
+
+    suspend fun getPostsOfMe() = api.getPostsOfMe()
+
+    suspend fun getPostsOfUser(username: String) = api.getPostsOfUser(username)
+
+    suspend fun createPost(
+        namePost: String, textPost: String,
+        link: String
+    ): Response<Void> {
+        var attachmentLink: String? = link
+        when {
+            attachmentLink!!.isEmpty() -> {
+                attachmentLink = null
+            }
+            !attachmentLink.contains("http") -> {
+                attachmentLink = "https://$attachmentLink"
+            }
+        }
+        val postRequestDto = PostRequestDto(
+            postName = namePost,
+            postText = textPost,
+            //attachmentImage = attachmentImage,
+            //statusUser = StatusUser.NONE,
+            link = attachmentLink
+            //attachmentId = attachmentModelId
+        )
+        return api.createPost(postRequestDto)
+    }
+
+    fun createRetrofitWithAuth(authToken: String) {
+        val httpLoggerInterceptor = HttpLoggingInterceptor()
+        httpLoggerInterceptor.level = HttpLoggingInterceptor.Level.BODY
+
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.setLevel(if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE)
+        val client = OkHttpClient.Builder()
+            .addInterceptor(InjectAuthTokenInterceptor(authToken))
+            .addInterceptor(httpLoggerInterceptor)
+            .addInterceptor(interceptor)
+            .build()
+        retrofit = Retrofit.Builder()
+            .client(client)
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        api = retrofit.create(API::class.java)
+    }
+
+}
