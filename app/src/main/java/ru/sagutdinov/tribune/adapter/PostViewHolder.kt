@@ -5,13 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.post_card.view.*
 import ru.sagutdinov.tribune.ReactionsActivity
 import ru.sagutdinov.tribune.R
 import ru.sagutdinov.tribune.UserActivity
+import ru.sagutdinov.tribune.postModel.AttachmentModel
+import ru.sagutdinov.tribune.postModel.BASE_URL
 import ru.sagutdinov.tribune.postModel.Post
 import ru.sagutdinov.tribune.postModel.StatusUser
 
@@ -37,6 +41,10 @@ open class PostViewHolder(
             textViewData.text = post.dateOfCreate
             fillCount(textViewNumberUp, post.postUpCount)
             fillCount(textViewNumberDown, post.postDownCount)
+
+            val attachModel = AttachmentModel(post.attachmentImage)
+            loadImage(imageViewPic, attachModel.url)
+
             when {
                 post.link == null -> {
                     imageViewLink.visibility = View.GONE
@@ -92,6 +100,12 @@ open class PostViewHolder(
             view.visibility = View.VISIBLE
             view.text = postCount.toString()
         }
+    }
+
+    fun loadImage(photoImg: ImageView, imageUrl: String) {
+        Glide.with(photoImg.context)
+            .load(imageUrl)
+            .into(photoImg)
     }
 
     private fun clickButtonListener() {
@@ -150,6 +164,8 @@ open class PostViewHolder(
                     startUserActivity(context)
                 }
             }
+
+
             textViewUserName.setOnClickListener {
                 context as Activity
                 if (context !is UserActivity) {
@@ -158,6 +174,7 @@ open class PostViewHolder(
             }
         }
     }
+
     private fun startUserActivity(context: Context) {
         if (adapterPosition != RecyclerView.NO_POSITION) {
             val usernameOfPost = list[adapterPosition].userName

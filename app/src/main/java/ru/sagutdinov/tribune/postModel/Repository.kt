@@ -1,6 +1,11 @@
 package ru.sagutdinov.tribune.postModel
 
+import android.graphics.Bitmap
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -10,6 +15,7 @@ import ru.sagutdinov.tribune.api.API
 import ru.sagutdinov.tribune.api.AuthRequestParams
 import ru.sagutdinov.tribune.api.InjectAuthTokenInterceptor
 import ru.sagutdinov.tribune.api.RegistrationRequestParams
+import java.io.ByteArrayOutputStream
 
 
 const val BASE_URL = "https://sagutdinov-tribune.herokuapp.com/"
@@ -45,9 +51,26 @@ object Repository {
 
     suspend fun getPostsOfUser(username: String) = api.getPostsOfUser(username)
 
+    suspend fun upload(bitmap: Bitmap): Response<AttachmentModel> {
+        // Создаем поток байтов
+        val bos = ByteArrayOutputStream()
+        // Помещаем Bitmap в качестве JPEG в этот поток
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos)
+        val reqFIle =
+            // Создаем тип медиа и передаем массив байтов с потока
+            RequestBody.create("image/jpeg".toMediaTypeOrNull(), bos.toByteArray())
+        val body =
+        // Создаем multipart объект, где указываем поле, в котором
+            // содержатся посылаемые данные, имя файла и медиафайл
+            MultipartBody.Part.createFormData("file", "image.jpg", reqFIle)
+        return api.uploadImage(body)
+    }
+
     suspend fun createPost(
-        namePost: String, textPost: String,
-        link: String
+        namePost: String,
+        textPost: String,
+        link: String,
+        attachmentImage: String,
     ): Response<Void> {
         var attachmentLink: String? = link
         when {
@@ -61,10 +84,8 @@ object Repository {
         val postRequestDto = PostRequestDto(
             postName = namePost,
             postText = textPost,
-            //attachmentImage = attachmentImage,
-            //statusUser = StatusUser.NONE,
-            link = attachmentLink
-            //attachmentId = attachmentModelId
+            link = attachmentLink,
+            attachmentImage = attachmentImage
         )
         return api.createPost(postRequestDto)
     }

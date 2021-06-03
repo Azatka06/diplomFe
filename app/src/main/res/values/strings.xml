@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Tribune</string>
+    <string name="new_post">Create new post!</string>
     <string name="enter_your_password">enter your password</string>
     <string name="repeed_your_password">repeed your password</string>
     <string name="do_not_have_accaunt">Do not have accaunt?</string>
@@ -32,6 +33,9 @@
     <string name="settings">setting</string>
     <string name="my_posts">my posts</string>
     <string name="exit">exit</string>
+    <string name="wait">wait, please</string>
+    <string name="succes">photo upload is successful</string>
+    <string name="fail">photo upload is failed</string>
     <string name="No_posts_before">No posts before</string>
     <string name="me">ME</string>
 </resources>

@@ -1,5 +1,12 @@
 package ru.sagutdinov.tribune.postModel
 
+
+enum class AttachmentType {
+    IMAGE
+}
+
+
+
 data class Post(
     val userName: String? = null,
     val dateOfCreate: String? = null,
@@ -12,7 +19,10 @@ data class Post(
     var postUpCount: Int,
     var postDownCount: Int,
     var pressedPostUp: Boolean,
-    var pressedPostDown: Boolean
+    var pressedPostDown: Boolean,
+    val attachmentImage: String,
+    val attachment: AttachmentModel?
+
 
 ) {
     var upActionPerforming = false

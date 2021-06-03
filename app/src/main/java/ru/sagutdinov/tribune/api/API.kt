@@ -1,11 +1,9 @@
 package ru.sagutdinov.tribune.api
 
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
-import ru.sagutdinov.tribune.postModel.Post
-import ru.sagutdinov.tribune.postModel.PostRequestDto
-import ru.sagutdinov.tribune.postModel.User
-import ru.sagutdinov.tribune.postModel.UsersReactionModel
+import ru.sagutdinov.tribune.postModel.*
 
 interface API {
     @POST("api/v1/authentication")
@@ -37,6 +35,11 @@ interface API {
 
     @GET("api/v1/posts/{idPost}/reaction-by-users")
     suspend fun getReactionByUsers(@Path("idPost") idPost: Long): Response<List<UsersReactionModel>>
+
+    @Multipart
+    @POST("api/v1/media")
+    suspend fun uploadImage(@Part file: MultipartBody.Part):
+            Response<AttachmentModel>
 }
 
 

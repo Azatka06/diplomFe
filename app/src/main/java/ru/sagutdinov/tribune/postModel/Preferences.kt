@@ -63,3 +63,27 @@ fun setNotFirstTime(context: Context) =
     context.getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE)
         .edit()
         .putBoolean(SHARED_PREF_KEY, false)
+
+fun getAttachModel(context: Context): String? {
+    val sharedPref = context.getSharedPreferences(
+        SHARED_PREF_KEY,
+        Context.MODE_PRIVATE
+    )
+    return sharedPref.getString(
+        ATTACH_MODEL_KEY,
+        null
+    )
+}
+
+fun savedAttachModel(attachModelId: String?, context: Context) {
+    val sharedPref = context.getSharedPreferences(
+        SHARED_PREF_KEY,
+        Context.MODE_PRIVATE
+    )
+    sharedPref.edit {
+        putString(
+            ATTACH_MODEL_KEY,
+            attachModelId
+        )
+    }
+}
